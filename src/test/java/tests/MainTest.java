@@ -6,6 +6,7 @@ import model.Data;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.EditorPage;
+import pages.MyArticlesPage;
 import pages.SignInPage;
 import utils.RestCalls;
 import utils.TestData;
@@ -16,6 +17,7 @@ public class MainTest extends BaseTest {
 	
 	SignInPage signInPage;
 	EditorPage editorPage;
+	MyArticlesPage myArticlesPage;
 	
 	RestCalls restCalls;
 
@@ -39,8 +41,12 @@ public class MainTest extends BaseTest {
 		editorPage = new EditorPage(getDriver());
         List<Article> articlesList = editorPage.generateArticles(data);
         editorPage.addArticle(articlesList, Integer.parseInt(data.getArticleNumber())); //Add as many articles as it has recieved from the previously generated list
+
+        myArticlesPage = new MyArticlesPage(getDriver());
+        myArticlesPage.checkArticles(articlesList);
     }
 
+    //This method read the properties from the file testdata.properties and save them in a Data model
     public void readTestData() {
         TestData testData = new TestData();
         data = testData.readTestDataProperties();
