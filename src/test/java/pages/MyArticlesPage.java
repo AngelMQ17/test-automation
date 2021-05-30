@@ -26,7 +26,7 @@ public class MyArticlesPage extends BasePage {
 
     String articleFirstId;
 
-    List<Article> articlesChecked;
+    List<Article> articlesChecked; //List where all the correctly checked articles will be stored
 
     public MyArticlesPage(WebDriver driver) {
         super(driver);
@@ -35,13 +35,15 @@ public class MyArticlesPage extends BasePage {
     public void checkArticles(List<Article> articleContent) {
         profileLink.click();
 
+        //Store the 'href' attribute which contains the article id of the first article, to check it later when the next page is displayed
         articleFirstId = getDriver().findElement(By.xpath("//a[@class='preview-link']")).getAttribute("href");
 
         articlesChecked = new ArrayList<>();
 
         List<WebElement> paginationButtons = getDriver().findElements(By.xpath("//a[@class='page-link']"));
-        if(paginationButtons.size()>0) {
+        if(paginationButtons.size()>0) { //Check if the pagination buttons exists in the page
 
+            //Will keep checking the Articles displayed in each page until the 'Next' button is disabled
             while (!getDriver().findElement(By.xpath("//a[@aria-label='Next']/parent::li")).getAttribute("class").contains("disabled")) {
                 checkArticleContent(articleContent);
                 paginationNextButton.click();
@@ -50,9 +52,11 @@ public class MyArticlesPage extends BasePage {
         }
         checkArticleContent(articleContent);
 
+        //Assert if all previously created articles have been checked correctly
         Assert.assertTrue(articlesChecked.containsAll(articleContent));
     }
 
+    //Checks, for each of the displayed articles, if the elements of the article are present inside of our generated Article List
     public void checkArticleContent(List<Article> articleContent) {
         List<WebElement> articlesDisplayed = getDriver().findElements(By.className("article-preview"));
 
@@ -63,8 +67,8 @@ public class MyArticlesPage extends BasePage {
                 Article art = it.next();
 
                 if(art.getTitle().equalsIgnoreCase(articlePreview.findElement(titleLocator).getText()) &&
-                art.getDescription().equalsIgnoreCase(articlePreview.findElement(descriptionLocator).getText()) &&
-                art.getTags().equalsIgnoreCase(articlePreview.findElement(tagLocator).getText())) {
+                   art.getDescription().equalsIgnoreCase(articlePreview.findElement(descriptionLocator).getText()) &&
+                   art.getTags().equalsIgnoreCase(articlePreview.findElement(tagLocator).getText())) {
                     articlesChecked.add(art);
 
                 }
@@ -72,6 +76,7 @@ public class MyArticlesPage extends BasePage {
         }
     }
 
+    //Since the page does not reload when going to the next page, we wait until the first article 'href' attribute is different for the one stored in 'articleFirstId'
     public void waitUntilArticleHasChanged() {
         wait.until((ExpectedCondition<Boolean>) driver -> {
             String articleId = driver.findElement(By.xpath("//a[@class='preview-link']")).getAttribute("href");
